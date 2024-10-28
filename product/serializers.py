@@ -1,7 +1,15 @@
 from rest_framework import serializers
-from .models import Product
+from .models import Product, Exchanged
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'title', 'price', 'image', 'address', 'trade_for']
+        fields = '__all__'
+
+def create(self, validated_data):
+        return Product.objects.create(**validated_data)
+
+class ExchangedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exchanged
+        fields = '__all__'

@@ -1,15 +1,20 @@
-from rest_framework import generics, permissions
-from .models import Product
-from .serializers import ProductSerializer
+from rest_framework import generics, permissions, viewsets
+from .models import Product, Exchanged
+from .serializers import ProductSerializer, ExchangedSerializer
 
-# API для списка продуктов
+
 class ProductListAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Аутентификация только для создания
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-# API для детального просмотра и редактирования продукта
+
 class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Аутентификация для редактирования и удаления
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class ExchangedViewSet(viewsets.ModelViewSet):
+    queryset = Exchanged.objects.all()
+    serializer_class = ExchangedSerializer
