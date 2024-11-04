@@ -7,6 +7,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to='images/')
     address = models.CharField(max_length=255)
     trade_for = models.CharField(max_length=255)
+    #owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')
     
     def __str__(self):
         return self.title
