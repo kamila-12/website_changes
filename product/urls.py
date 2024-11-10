@@ -11,4 +11,6 @@ urlpatterns = [
     path('api/products/<int:pk>/', views.ProductDetailAPIView.as_view(), name='product-detail'),
     path('api/', include(router.urls)),  
     path('api/user/exchanges/', views.UserExchangesAPIView.as_view(), name='user-exchanges'),
+    path('api/exchange/request/', views.UserExchangedRequestAPIView.as_view(), name='exchange-request'),
 ]
+
