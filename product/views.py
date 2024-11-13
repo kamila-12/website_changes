@@ -1,11 +1,12 @@
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, viewsets, status
 from .models import Product, Exchanged
-from .serializers import ProductSerializer, ExchangedSerializer
+from .serializers import ProductSerializer, ExchangedSerializer 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+# from django.shortcuts import render
+# from django.contrib.auth.decorators import login_required
+from rest_framework.permissions import AllowAny
+
 
 
 class ProductListAPIView(generics.ListCreateAPIView):
@@ -63,3 +64,5 @@ class UserExchangedRequestAPIView(APIView):
         )
         serializer = ExchangedSerializer(exchange)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+
