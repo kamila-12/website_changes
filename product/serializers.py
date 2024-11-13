@@ -16,3 +16,5 @@ class ExchangedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exchanged
         fields = '__all__'
+
+

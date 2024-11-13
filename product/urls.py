@@ -1,6 +1,7 @@
-from django.urls import include, path
+from django.urls import include, path, re_path
 from rest_framework import routers
 from . import views
+from rest_framework.authtoken.views import obtain_auth_token
 
 router = routers.DefaultRouter()
 router.register('exchanged', views.ExchangedViewSet, basename='exchanged')  
@@ -12,5 +13,9 @@ urlpatterns = [
     path('api/', include(router.urls)),  
     path('api/user/exchanges/', views.UserExchangesAPIView.as_view(), name='user-exchanges'),
     path('api/exchange/request/', views.UserExchangedRequestAPIView.as_view(), name='exchange-request'),
-]
+    path('api/v1/auth/', include('djoser.urls')),         
+    re_path(r'^auth/', include('djoser.urls.authtoken')),
+    re_path(r'^auth/', include('djoser.urls')),
+    re_path(r'^auth/', include('djoser.urls.jwt')),
+    ]
 
