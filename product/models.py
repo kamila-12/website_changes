@@ -31,3 +31,21 @@ class Exchanged(models.Model):
 
     def __str__(self):
         return f"Exchange {self.id} - {self.status}"
+
+    def update_status(self, new_status):
+        """
+        Updates the status of the exchange with validation.
+        """
+        allowed_transitions = {
+            'pending': ['accepted', 'declined'],
+            'accepted': ['completed', 'failed'],
+            'declined': [],
+            'completed': [],
+            'failed': [],
+        }
+
+        if new_status not in allowed_transitions[self.status]:
+            raise ValueError(f"Cannot transition status from {self.status} to {new_status}.")
+
+        self.status = new_status
+        self.save()
