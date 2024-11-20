@@ -17,4 +17,9 @@ class ExchangedSerializer(serializers.ModelSerializer):
         model = Exchanged
         fields = '__all__'
 
+class ExchangedStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exchanged
+        fields = ['status']
+
 

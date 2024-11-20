@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions, viewsets, status
 from .models import Product, Exchanged
-from .serializers import ProductSerializer, ExchangedSerializer 
+from .serializers import ProductSerializer, ExchangedSerializer, ExchangedStatusSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 # from django.shortcuts import render
@@ -9,7 +9,9 @@ from rest_framework.permissions import AllowAny
 
 
 
-class ProductListAPIView(generics.ListCreateAPIView):
+
+
+class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -25,8 +27,18 @@ class ExchangedViewSet(viewsets.ModelViewSet):
     queryset = Exchanged.objects.all()
     serializer_class = ExchangedSerializer
 
+class UpdateExchangeStatusAPIView(generics.UpdateAPIView):
+    queryset = Exchanged.objects.all()
+    serializer_class = ExchangedStatusSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-class UserProductsAPIView(generics.ListAPIView):
+    def get_queryset(self):
+        # Ограничиваем доступ только к обменам, где пользователь имеет право менять статус
+        return Exchanged.objects.filter(
+            product_requested__owner=self.request.user
+        )
+
+class UserProductsAPIView(generics.ListCreateAPIView):
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticated] 
 
