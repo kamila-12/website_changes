@@ -3,24 +3,42 @@ from .models import Product, Exchanged
 from .serializers import ProductSerializer, ExchangedSerializer, ExchangedStatusSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-# from django.shortcuts import render
-# from django.contrib.auth.decorators import login_required
-from rest_framework.permissions import AllowAny
-
-
-
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    def get_queryset(self):
+
+        user = self.request.user
+        if user.is_authenticated:
+            return Product.objects.filter(owner=user) 
+        return Product.objects.all()
+
+
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            'username': user.username,
+            'email': user.email,
+        })
 
 
 class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 class ExchangedViewSet(viewsets.ModelViewSet):
@@ -37,6 +55,11 @@ class UpdateExchangeStatusAPIView(generics.UpdateAPIView):
         return Exchanged.objects.filter(
             product_requested__owner=self.request.user
         )
+    def get(self, request, *args, **kwargs):
+        exchange = self.get_object()
+        serializer = self.get_serializer(exchange)
+        return Response(serializer.data)
+
 
 class UserProductsAPIView(generics.ListCreateAPIView):
     serializer_class = ProductSerializer

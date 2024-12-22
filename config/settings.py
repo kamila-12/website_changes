@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 import os
 
@@ -38,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt',
+    "corsheaders",
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -48,16 +51,52 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
  
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+         'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+
+    ],
+        'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+#     'AUTH_HEADER_TYPES': ('Bearer',),  # Используйте 'Bearer' для токенов
+#     'USER_ID_FIELD': 'id',
+#     'USER_ID_CLAIM': 'user_id',
+#     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+#     'ROTATE_REFRESH_TOKENS': True,
+#     'BLACKLIST_AFTER_ROTATION': True,
+#     'TOKEN_TYPE_CLAIM': 'token_type',
+# }
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
-SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
+# DJOSER = {
+#     'LOGIN_FIELD': 'email',
+#     'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
+#     'USER_CREATE_PASSWORD_RETYPE': True,
+    # 'SEND_ACTIVATION_EMAIL': False,
+    # 'ACTIVATION_URL': 'activate/{uid}/{token}',
+    # 'SERIALIZERS': {
+    #     'user': 'djoser.serializers.UserSerializer',
+    # },
+#}
+DJOSER = {
+    'LOGIN_FIELD': 'username',
+    'SERIALIZERS': {
+        'user_create': 'djoser.serializers.UserCreateSerializer',
+        'user': 'djoser.serializers.UserSerializer',
+        'current_user': 'djoser.serializers.UserSerializer',
+    },
 }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -67,8 +106,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
-
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWS_CREDENTIALS = True
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -137,10 +179,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/images/'
-MEDIA_ROOT = BASE_DIR / 'images'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'images')
