@@ -7,17 +7,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-class ProductListAPIView(generics.ListAPIView):
+class ProductListAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    def get_queryset(self):
+    permission_classes = [permissions.AllowAny]  
 
-        user = self.request.user
-        if user.is_authenticated:
-            return Product.objects.filter(owner=user) 
-        return Product.objects.all()
-
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(owner=self.request.user)
 
 
 class ProfileView(APIView):
@@ -34,7 +31,7 @@ class ProfileView(APIView):
 class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['request'] = self.request
@@ -67,6 +64,9 @@ class UserProductsAPIView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return Product.objects.filter(owner=self.request.user)
+    def perform_create(self, serializer):
+        # Сохраняем продукт с владельцем текущим пользователем
+        serializer.save(owner=self.request.user)
 
 
 class UserExchangesAPIView(generics.ListAPIView):

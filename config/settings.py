@@ -61,17 +61,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
-# SIMPLE_JWT = {
-#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-#     'AUTH_HEADER_TYPES': ('Bearer',),  # Используйте 'Bearer' для токенов
-#     'USER_ID_FIELD': 'id',
-#     'USER_ID_CLAIM': 'user_id',
-#     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-#     'ROTATE_REFRESH_TOKENS': True,
-#     'BLACKLIST_AFTER_ROTATION': True,
-#     'TOKEN_TYPE_CLAIM': 'token_type',
-# }
+
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -89,6 +79,7 @@ SIMPLE_JWT = {
     # },
 #}
 DJOSER = {
+    'USER_ID_FIELD': 'username',
     'LOGIN_FIELD': 'username',
     'SERIALIZERS': {
         'user_create': 'djoser.serializers.UserCreateSerializer',
