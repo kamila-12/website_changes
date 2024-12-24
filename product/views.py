@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 class ProductListAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
@@ -31,16 +32,13 @@ class ProfileView(APIView):
 class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [permissions.AllowAny]  
     #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
 
-
-class ExchangedViewSet(viewsets.ModelViewSet):
-    queryset = Exchanged.objects.all()
-    serializer_class = ExchangedSerializer
 
 class UpdateExchangeStatusAPIView(generics.UpdateAPIView):
     queryset = Exchanged.objects.all()
@@ -78,26 +76,31 @@ class UserExchangesAPIView(generics.ListAPIView):
             product_offered__owner=self.request.user
         ) | Exchanged.objects.filter(user_requested=self.request.user)
 
-class UserExchangedRequestAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def post(self, request):
-        product_offered_id = request.data.get("product_offered")
-        product_requested_id = request.data.get("product_requested")
-        
+
+# view для обмена
+class ExchangeViewSet(viewsets.ModelViewSet):
+    queryset = Exchanged.objects.all()
+    serializer_class = ExchangedSerializer
+
+    @action(detail=False, methods=['post'])
+    def create_exchange(self, request):
+        product_offered = request.data.get('product_offered')
+        product_requested = request.data.get('product_requested')
+
+        # Проверяем существование продуктов
         try:
-            product_offered = Product.objects.get(id=product_offered_id, owner=request.user)
-            product_requested = Product.objects.get(id = product_requested_id)
+            product_offered_obj = Product.objects.get(id=product_offered)
+            product_requested_obj = Product.objects.get(id=product_requested)
         except Product.DoesNotExist:
-            return Response({"error: " "The product was not found or you are not owner"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Создаём обмен
         exchange = Exchanged.objects.create(
-            product_offered = product_offered,
-            product_requested = product_requested,
-            user_requested = product_requested.owner,
-            
+            product_offered=product_offered_obj,
+            product_requested=product_requested_obj,
+            status='pending'
         )
-        serializer = ExchangedSerializer(exchange)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
+        return Response({'id': exchange.id, 'status': 'exchange created'}, status=status.HTTP_201_CREATED)
+
 

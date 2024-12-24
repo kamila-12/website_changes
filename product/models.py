@@ -23,17 +23,24 @@ class Exchanged(models.Model):
 
     product_offered = models.ForeignKey(Product, related_name='exchanges_offered', on_delete=models.CASCADE)
     product_requested = models.ForeignKey(Product, related_name='exchanges_requested', on_delete=models.CASCADE)
-    user_requested = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_requested = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Exchange {self.id} - {self.status}"
-
+    
+    def save(self, *args, **kwargs):
+        """
+        Автоматически задаёт user_requested как владельца product_requested.
+        """
+        if not self.user_requested:
+            self.user_requested = self.product_requested.owner
+        super().save(*args, **kwargs)
+    
+    
     def update_status(self, new_status):
-        """
-        Updates the status of the exchange with validation.
-        """
+
         allowed_transitions = {
             'pending': ['accepted', 'declined'],
             'accepted': ['completed', 'failed'],
