@@ -1,5 +1,5 @@
 from rest_framework import generics, permissions, viewsets, status
-from .models import Product, Exchanged
+from .models import Product, Exchanged 
 from .serializers import ProductSerializer, ExchangedSerializer, ExchangedStatusSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+from django.contrib.auth.models import User
+
 
 class ProductListAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
@@ -100,7 +102,10 @@ class ExchangeViewSet(viewsets.ModelViewSet):
             product_requested=product_requested_obj,
             status='pending'
         )
+        
 
-        return Response({'id': exchange.id, 'status': 'exchange created'}, status=status.HTTP_201_CREATED)
 
-
+        return Response(
+            {'id': exchange.id, 'status': 'exchange created', 'message': f"Notification sent to {user_requested.username}"},
+            status=status.HTTP_201_CREATED
+        )    

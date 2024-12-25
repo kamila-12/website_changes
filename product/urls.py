@@ -11,7 +11,6 @@ urlpatterns = [
     path('api/user/products/', views.UserProductsAPIView.as_view(), name='user-products'),
     path('api/products/', views.ProductListAPIView.as_view(), name='product-list'),
     path('api/products/<int:pk>/', views.ProductDetailAPIView.as_view(), name='product-detail'),
-    path('api/', include(router.urls)),  
     path('api/user/exchanges/', views.UserExchangesAPIView.as_view(), name='user-exchanges'),
     path('api/', include(router.urls)),  # Подключение ViewSet
     path('api/exchange/<int:pk>/update-status/', UpdateExchangeStatusAPIView.as_view(), name='update-exchange-status'),

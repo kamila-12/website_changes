@@ -10,17 +10,34 @@ class ProductSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Product.objects.create(**validated_data)
 
-class ExchangedSerializer(serializers.ModelSerializer):
-    product_offered = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
-    product_requested = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
-    
 
+class ExchangedSerializer(serializers.ModelSerializer):
+    product_offered = ProductSerializer()  
+    product_requested = ProductSerializer()  
+    sender = serializers.SerializerMethodField()  
+    receiver = serializers.SerializerMethodField()  
 
     class Meta:
         model = Exchanged
-        fields = ['id', 'product_offered', 'product_requested', 'status', 'date_created']
+        fields = [
+            'id',
+            'product_offered',
+            'product_requested',
+            'status',
+            'date_created',
+            'sender',
+            'receiver'
+        ]
         read_only_fields = ['user_requested', 'date_created']
-        
+
+    def get_sender(self, obj):
+        # Возвращает имя владельца предложенного продукта
+        return obj.product_offered.owner.username
+
+    def get_receiver(self, obj):
+        # Возвращает имя пользователя, который запросил обмен
+        return obj.user_requested.username
+
     def create(self, validated_data):
         # Автоматически задаём user_requested
         validated_data['user_requested'] = validated_data['product_requested'].owner
@@ -30,5 +47,6 @@ class ExchangedStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exchanged
         fields = ['status']
+        
 
 

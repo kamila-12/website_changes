@@ -54,3 +54,5 @@ class Exchanged(models.Model):
 
         self.status = new_status
         self.save()
+
+
