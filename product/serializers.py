@@ -29,14 +29,13 @@ class ExchangedSerializer(serializers.ModelSerializer):
             'receiver'
         ]
         read_only_fields = ['user_requested', 'date_created']
-
     def get_sender(self, obj):
-        # Возвращает имя владельца предложенного продукта
-        return obj.product_offered.owner.username
+        # Проверяем наличие владельца продукта, чтобы избежать ошибок
+        return obj.product_offered.owner.username if obj.product_offered and obj.product_offered.owner else "Unknown"
 
     def get_receiver(self, obj):
-        # Возвращает имя пользователя, который запросил обмен
-        return obj.user_requested.username
+        # Проверяем наличие user_requested
+        return obj.user_requested.username if obj.user_requested else "Unknown"
 
     def create(self, validated_data):
         # Автоматически задаём user_requested
